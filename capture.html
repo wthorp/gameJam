@@ -16,7 +16,7 @@
 </head>
 
 <body>
-    <video autoplay="true" id="videoElement" style="display:hidden;" />
+    <video autoplay="true" id="videoElement" style="display:hidden;"></video>
     <canvas style="background-color:blue;"></canvas>
     <div id="color"> This is a test </div>
 
@@ -36,7 +36,6 @@
         }, 33);
 
         function pick(event) {
-            alert("here");
             var x = event.layerX;
             var y = event.layerY;
             var pixel = ctx.getImageData(x, y, 1, 1);
@@ -45,7 +44,7 @@
             color.style.background = rgba;
             color.textContent = "!!!" + rgba;
         }
-        canvas.addEventListener('mousemove', pick);
+        video.addEventListener('mousemove', pick);
 
         function handleSuccess(stream) {
             window.stream = stream; // make stream available to browser console
