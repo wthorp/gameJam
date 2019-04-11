@@ -32,19 +32,37 @@
 <body>
     <video autoplay="true" id="videoElement" style="visibility:hidden;"></video>
     <canvas style="background-color:blue;"></canvas>
+    <img src="tardigrade.png" id="tardigrade" style="visibility:hidden;">
+
+    <div id="color"> This is a test </div>
+
     <script>
         // Put variables in global scope to make them available to the browser console.
         const video = document.querySelector('video');
         const canvas = document.querySelector('canvas');
         const ctx = canvas.getContext('2d');
+        const color = document.getElementById('color');
+        const tardigrade = document.getElementById('tardigrade')
 
 
 
         setInterval(function () {
+            // draw video frame on canvas
             canvas.width = video.videoWidth;
             canvas.height = video.videoHeight;
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+            // draw player box on canvas
+            ctx.beginPath();
+            ctx.moveTo(canvas.width / 2 - 100, canvas.height);
+            ctx.lineTo(canvas.width / 2 - 100, canvas.height - 200);
+            ctx.lineTo(canvas.width / 2 + 100, canvas.height - 200);
+            ctx.lineTo(canvas.width / 2 + 100, canvas.height);
+            ctx.stroke();
+
+            // draw tardigrade
+            ctx.drawImage(tardigrade, 100, 100, 50, 50);
         }, 33);
 
         function pick(event) {
