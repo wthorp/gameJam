@@ -43,6 +43,10 @@
     ];
 
 
+    function getRand(max) {
+        return Math.floor(Math.random() * Math.floor(max));
+    }
+
     //the main draw loop
     setInterval(function () {
         // draw video frame on canvas
@@ -58,16 +62,30 @@
         ctx.lineTo(canvas.width / 2 + 100, canvas.height);
         ctx.stroke();
 
+        targetX = canvas.width / 2 - 100
+        targetY = canvas.height - 100
+
         // draw tardigrades
         for (i = 0; i < tardigrades.length; i++) {
             var t = tardigrades[i];
             if (!t.isOnLight(ctx)) {
-                t.move(0, 0)
+                var perimeter = Math.floor(Math.random() * ((2.0 * canvas.height) + canvas.width))
+                if (perimeter <= canvas.height) {
+                    t.move(0, perimeter)
+                } else if (perimeter <= 2 * canvas.height) {
+                    t.move(canvas.width - t.w, perimeter - canvas.height)
+                } else {
+                    t.move(perimeter - canvas.height - canvas.height - t.w, 0)
+                }
             }
             t.draw(ctx);
-            t.move(t.x + 1, t.y + 1);
+
+            dist = Math.pow(Math.pow(t.x - targetX, 2) + Math.pow(t.y - targetY, 2), .5)
+            t.move(t.x - ((t.x - targetX) / dist), t.y - ((t.y - targetY) / dist));
         }
     }, 33);
+
+
 
     //handle video
     function handleSuccess(stream) {
