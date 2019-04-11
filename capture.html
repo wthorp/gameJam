@@ -44,8 +44,6 @@
         const color = document.getElementById('color');
         const tardigrade = document.getElementById('tardigrade')
 
-
-
         setInterval(function () {
             // draw video frame on canvas
             canvas.width = video.videoWidth;
@@ -60,6 +58,19 @@
             ctx.lineTo(canvas.width / 2 + 100, canvas.height - 200);
             ctx.lineTo(canvas.width / 2 + 100, canvas.height);
             ctx.stroke();
+
+
+            //capture image before tardigrade draw
+            var x = 100, y = 100, h = 50, w = 50;
+            var subImg = ctx.getImageData(x, y, w, h);
+            var data = subImg.data;
+            for (dx = 0; dx < x; dx++) {
+                for (dy = 0; dy < y; dy++) {
+                    var i = ((dx * w) + dy) * 4;
+                    total += data[i] + data[i + 1] + data[i + 2];
+                }
+            }
+
 
             // draw tardigrade
             ctx.drawImage(tardigrade, 100, 100, 50, 50);
