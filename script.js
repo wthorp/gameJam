@@ -1,4 +1,5 @@
 (function () {
+    const darknessThreshold = 384;
 
     class tardigrade {
         constructor(x, y, h, w) {
@@ -6,27 +7,26 @@
             this.y = y;
             this.h = h;
             this.w = w;
-            this.move = function (dx, dy) {
-                this.x += dx;
-                this.y += dy;
-            };
-            this.isOnLight = function (ctx) {
-                var subImg = ctx.getImageData(this.x, this.y, this.w, this.h);
-                var data = subImg.data;
-                var total = 0, ix = 0, iy = 0;
-                const darknessThreshold = 120;
-                for (ix = 0; ix < this.w; ix++) {
-                    for (iy = 0; iy < this.h; iy++) {
-                        var i = ((iy * this.w) + ix) * 4;
-                        total += data[i] + data[i + 1] + data[i + 2];
-                    }
+        }
+        move(x, y) {
+            this.x = x;
+            this.y = y;
+        }
+        isOnLight(ctx) {
+            var subImg = ctx.getImageData(this.x, this.y, this.w, this.h);
+            var data = subImg.data;
+            var total = 0, ix = 0, iy = 0;
+
+            for (ix = 0; ix < this.w; ix++) {
+                for (iy = 0; iy < this.h; iy++) {
+                    var i = ((iy * this.w) + ix) * 4;
+                    total += data[i] + data[i + 1] + data[i + 2];
                 }
-                return (total / this.h / this.w) > darknessThreshold;
-            };
-            // draw tardigrade
-            this.draw = function (ctx) {
-                ctx.drawImage(tgImage, this.x, this.y, this.w, this.h);
-            };
+            }
+            return (total / this.h / this.w) > darknessThreshold;
+        }
+        draw(ctx) {
+            ctx.drawImage(tgImage, this.x, this.y, this.w, this.h);
         }
     }
 
@@ -37,11 +37,13 @@
     const tgImage = document.getElementById('tardigrade')
 
 
+    //enenmies
     var tardigrades = [
         new tardigrade(0, 0, 50, 50),
     ];
 
 
+    //the main draw loop
     setInterval(function () {
         // draw video frame on canvas
         canvas.width = video.videoWidth;
@@ -59,10 +61,12 @@
 
         // draw tardigrades
         for (i = 0; i < tardigrades.length; i++) {
-            if (tardigrades[i].isOnLight(ctx)) {
-                tardigrades[i].draw(ctx);
+            var t = tardigrades[i];
+            if (!t.isOnLight(ctx)) {
+                t.move(0, 0)
             }
-            tardigrades[i].move(1, 1);
+            t.draw(ctx);
+            t.move(t.x + 1, t.y + 1);
         }
     }, 33);
 
@@ -78,8 +82,9 @@
 
     // support fullscreen
     window.onkeypress = function () {
+        flipContainer = document.getElementById("flip_container")
         if (!document.fullscreenElement) {
-            canvas.requestFullscreen().catch(err => {
+            flipContainer.requestFullscreen().catch(err => {
                 alert(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
             });
         } else {
