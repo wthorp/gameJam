@@ -1,11 +1,47 @@
 (function () {
+
+    class tardigrade {
+        constructor(x, y, h, w) {
+            this.x = x;
+            this.y = y;
+            this.h = h;
+            this.w = w;
+            this.move = function (dx, dy) {
+                this.x += dx;
+                this.y += dy;
+            };
+            this.isHit = function (ctx) {
+                var subImg = ctx.getImageData(this.x, this.y, this.w, this.h);
+                var data = subImg.data;
+                var total = 0, ix = 0, iy = 0;
+                const darknessThreshold = 120;
+                for (ix = 0; ix < this.w; ix++) {
+                    for (iy = 0; iy < this.h; iy++) {
+                        var i = ((iy * this.w) + ix) * 4;
+                        total += data[i] + data[i + 1] + data[i + 2];
+                    }
+                }
+                return (total / this.x / this.y) > darknessThreshold;
+            };
+            // draw tardigrade
+            this.draw = function (ctx) {
+                ctx.drawImage(tgImage, this.x, this.y, this.w, this.h);
+            };
+        }
+    }
+
     // Put variables in global scope to make them available to the browser console.
     const video = document.querySelector('video');
     const canvas = document.querySelector('canvas');
     const ctx = canvas.getContext('2d');
-    const tardigrade = document.getElementById('tardigrade')
+    const tgImage = document.getElementById('tardigrade')
 
-    var showTardigrade = true
+
+    var tardigrades = [
+        new tardigrade(100, 100, 50, 50),
+    ];
+
+
     setInterval(function () {
         // draw video frame on canvas
         canvas.width = video.videoWidth;
@@ -21,27 +57,12 @@
         ctx.lineTo(canvas.width / 2 + 100, canvas.height);
         ctx.stroke();
 
-
-        //capture image before tardigrade draw
-        var x = 100, y = 100, h = 50, w = 50;
-        var subImg = ctx.getImageData(x, y, w, h);
-        var data = subImg.data;
-        var total = 0;
-        const darknessThreshold = 120;
-        for (dx = 0; dx < w; dx++) {
-            for (dy = 0; dy < h; dy++) {
-                var i = ((dy * w) + dx) * 4;
-                total += data[i] + data[i + 1] + data[i + 2];
+        // draw tardigrades
+        for (i = 0; i < tardigrades.length; i++) {
+            if (!tardigrades[i].isHit(ctx)) {
+                tardigrades[i].draw(ctx);
             }
-        }
-        if ((total / x / y) > darknessThreshold) {
-            showTardigrade = false;
-            //alert(total / x / y);
-        }
-
-        // draw tardigrade
-        if (showTardigrade) {
-            ctx.drawImage(tardigrade, x, y, w, h);
+            tardigrades[i].move(1, 1);
         }
     }, 33);
 
