@@ -1,11 +1,11 @@
-(function() {
+(function () {
     // Put variables in global scope to make them available to the browser console.
     const video = document.querySelector('video');
     const canvas = document.querySelector('canvas');
     const ctx = canvas.getContext('2d');
-    const color = document.getElementById('color');
     const tardigrade = document.getElementById('tardigrade')
 
+    var showTardigrade = true
     setInterval(function () {
         // draw video frame on canvas
         canvas.width = video.videoWidth;
@@ -27,27 +27,25 @@
         var subImg = ctx.getImageData(x, y, w, h);
         var data = subImg.data;
         var total = 0;
-        for (dx = 0; dx < x; dx++) {
-            for (dy = 0; dy < y; dy++) {
-                var i = ((dx * w) + dy) * 4;
+        const darknessThreshold = 120;
+        for (dx = 0; dx < w; dx++) {
+            for (dy = 0; dy < h; dy++) {
+                var i = ((dy * w) + dx) * 4;
                 total += data[i] + data[i + 1] + data[i + 2];
             }
         }
-
+        if ((total / x / y) > darknessThreshold) {
+            showTardigrade = false;
+            //alert(total / x / y);
+        }
 
         // draw tardigrade
-        ctx.drawImage(tardigrade, 100, 100, 50, 50);
+        if (showTardigrade) {
+            ctx.drawImage(tardigrade, x, y, w, h);
+        }
     }, 33);
 
-    function pick(event) {
-        var x = event.layerX;
-        var y = event.layerY;
-        var pixel = ctx.getImageData(x, y, 1, 1);
-        var data = pixel.data;
-        var rgba = 'rgba(' + data[0] + ', ' + data[1] + ', ' + data[2] + ', ' + (data[3] / 255) + ')';
-    }
-    canvas.addEventListener('click', pick);
-
+    //handle video
     function handleSuccess(stream) {
         window.stream = stream; // make stream available to browser console
         video.srcObject = stream;
@@ -57,26 +55,14 @@
     }
     navigator.mediaDevices.getUserMedia({ audio: false, video: true }).then(handleSuccess).catch(handleError);
 
-
-    window.onresize = function () {
-        var w = window.innerWidth;
-        var h = window.innerHeight;
-        canvas.style.height = w + "px";
-        canvas.style.height = h + "px";
-    };
-    window.onload = function () {
-        canvas.webkitRequestFullScreen(Element.ALLOW_KEYBOARD_INPUT); //Chrome
-        canvas.mozRequestFullScreen(); //Firefox
-
+    // support fullscreen
+    window.onkeypress = function () {
         if (!document.fullscreenElement) {
-            elem.requestFullscreen().catch(err => {
+            canvas.requestFullscreen().catch(err => {
                 alert(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
             });
         } else {
             document.exitFullscreen();
         }
-        //now i want to cancel fullscreen
-        // document.webkitCancelFullScreen(); //Chrome
-        // document.mozCancelFullScreen(); //Firefox 
     }
 })();
