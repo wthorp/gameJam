@@ -46,8 +46,7 @@
     //the main draw loop
     setInterval(function () {
         // draw video frame on canvas
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
+
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
@@ -74,11 +73,17 @@
     function handleSuccess(stream) {
         window.stream = stream; // make stream available to browser console
         video.srcObject = stream;
+
     }
     function handleError(error) {
         console.log('navigator.MediaDevices.getUserMedia error: ', error.message, error.name);
     }
     navigator.mediaDevices.getUserMedia({ audio: false, video: true }).then(handleSuccess).catch(handleError);
+
+    video.addEventListener("loadedmetadata", function (e) {
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+    }, false);
 
     // support fullscreen
     window.onkeypress = function () {
