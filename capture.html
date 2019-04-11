@@ -5,12 +5,26 @@
     <meta charset="utf-8">
     <title>Display Webcam Stream</title>
     <style>
+        html,
+        body,
+        canvas {
+            overflow: hidden;
+            position: absolute;
+            height: 100%;
+            width: 100%;
+            left: 0px;
+            top: 0px;
+            padding: 0px;
+            margin: 0px;
+        }
+
         canvas {
             -o-transform: scaleX(-1);
             -moz-transform: scaleX(-1);
             -webkit-transform: scaleX(-1);
             -ms-transform: scaleX(-1);
             transform: scaleX(-1);
+
         }
     </style>
 </head>
@@ -18,15 +32,11 @@
 <body>
     <video autoplay="true" id="videoElement" style="visibility:hidden;"></video>
     <canvas style="background-color:blue;"></canvas>
-
-    <div id="color"> This is a test </div>
-
     <script>
         // Put variables in global scope to make them available to the browser console.
         const video = document.querySelector('video');
         const canvas = document.querySelector('canvas');
         const ctx = canvas.getContext('2d');
-        const color = document.getElementById('color');
 
 
 
@@ -43,8 +53,6 @@
             var pixel = ctx.getImageData(x, y, 1, 1);
             var data = pixel.data;
             var rgba = 'rgba(' + data[0] + ', ' + data[1] + ', ' + data[2] + ', ' + (data[3] / 255) + ')';
-            color.style.background = rgba;
-            color.textContent = "!!!" + rgba;
         }
         canvas.addEventListener('click', pick);
 
@@ -56,6 +64,32 @@
             console.log('navigator.MediaDevices.getUserMedia error: ', error.message, error.name);
         }
         navigator.mediaDevices.getUserMedia({ audio: false, video: true }).then(handleSuccess).catch(handleError);
+
+
+        window.onresize = function () {
+            var w = window.width();
+            var h = window.height();
+            canvas.style.height = w + "px";
+            canvas.style.height = h + "px";
+        };
+        window.onload = function () {
+            canvas.webkitRequestFullScreen(Element.ALLOW_KEYBOARD_INPUT); //Chrome
+            canvas.mozRequestFullScreen(); //Firefox
+
+            if (!document.fullscreenElement) {
+                elem.requestFullscreen().catch(err => {
+                    alert(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
+                });
+            } else {
+                document.exitFullscreen();
+            }
+            //now i want to cancel fullscreen
+            // document.webkitCancelFullScreen(); //Chrome
+            // document.mozCancelFullScreen(); //Firefox 
+        }
+
+
+
     </script>
 </body>
 
