@@ -26,6 +26,7 @@
         var x = 100, y = 100, h = 50, w = 50;
         var subImg = ctx.getImageData(x, y, w, h);
         var data = subImg.data;
+        var total = 0;
         for (dx = 0; dx < x; dx++) {
             for (dy = 0; dy < y; dy++) {
                 var i = ((dx * w) + dy) * 4;
@@ -58,8 +59,8 @@
 
 
     window.onresize = function () {
-        var w = window.width();
-        var h = window.height();
+        var w = window.innerWidth;
+        var h = window.innerHeight;
         canvas.style.height = w + "px";
         canvas.style.height = h + "px";
     };
