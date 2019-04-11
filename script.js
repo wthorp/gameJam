@@ -10,7 +10,7 @@
                 this.x += dx;
                 this.y += dy;
             };
-            this.isHit = function (ctx) {
+            this.isOnLight = function (ctx) {
                 var subImg = ctx.getImageData(this.x, this.y, this.w, this.h);
                 var data = subImg.data;
                 var total = 0, ix = 0, iy = 0;
@@ -21,7 +21,7 @@
                         total += data[i] + data[i + 1] + data[i + 2];
                     }
                 }
-                return (total / this.x / this.y) > darknessThreshold;
+                return (total / this.h / this.w) > darknessThreshold;
             };
             // draw tardigrade
             this.draw = function (ctx) {
@@ -38,7 +38,7 @@
 
 
     var tardigrades = [
-        new tardigrade(100, 100, 50, 50),
+        new tardigrade(0, 0, 50, 50),
     ];
 
 
@@ -59,7 +59,7 @@
 
         // draw tardigrades
         for (i = 0; i < tardigrades.length; i++) {
-            if (!tardigrades[i].isHit(ctx)) {
+            if (tardigrades[i].isOnLight(ctx)) {
                 tardigrades[i].draw(ctx);
             }
             tardigrades[i].move(1, 1);
