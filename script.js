@@ -2,6 +2,7 @@
     const darknessThreshold = 584;
     const spaceKeyCode = 32;
     let started = true;
+    let score = 0;
 
     class tardigrade {
         constructor(ch, cw, h, w) {
@@ -49,6 +50,8 @@
     const camCtx = cam.getContext('2d');
     const bugs = document.getElementById('bugs');
     const bugCtx = bugs.getContext('2d');
+    const scoreEl = document.getElementById('score');
+    const scoreCtx = scoreEl.getContext('2d');
 
     const tgImage = document.getElementById('tardigrade')
     var bgChromaKey
@@ -88,6 +91,7 @@
         // draw video frame on cam
         camCtx.clearRect(0, 0, cam.width, cam.height);
         bugCtx.clearRect(0, 0, cam.width, cam.height);
+        scoreCtx.clearRect(0, 0, cam.width, cam.height);
         camCtx.drawImage(video, 0, 0, cam.width, cam.height);
 
         var vidFrame = camCtx.getImageData(0, 0, cam.width, cam.height);
@@ -106,11 +110,18 @@
         bugCtx.lineTo(cam.width / 2 + 100, cam.height);
         bugCtx.stroke();
 
+        // draw score
+        scoreCtx.font = "30px Arial";
+        scoreCtx.fillStyle = "white";
+        scoreCtx.textAlign = "center";
+        scoreCtx.fillText("Score " + score, scoreEl.width / 2, scoreEl.height - 10);
+
         // kill tardigrades
         for (i = 0; i < tardigrades.length; i++) {
             var t = tardigrades[i];
             if (!t.isOnLight(camCtx)) {
                 t.spawn();
+                score++;
             }
         }
         invertColors(vidFrame.data);
@@ -147,6 +158,8 @@
         cam.height = video.videoHeight;
         bugs.width = video.videoWidth;
         bugs.height = video.videoHeight;
+        scoreEl.width = video.videoWidth;
+        scoreEl.height = video.videoHeight;
         bgChromaKey = camCtx.getImageData(0, 0, cam.width, cam.height)
     }, false);
 
@@ -154,8 +167,9 @@
     window.onkeypress = function (e) {
         if (e.which === spaceKeyCode) {
             started = true;
+            score = 0;
         }
-        flipContainer = document.getElementById("flip_container");
+        flipContainer = document.getElementById("screen");
         if (!document.fullscreenElement) {
             flipContainer.requestFullscreen().catch(err => {
                 alert(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
