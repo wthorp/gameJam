@@ -71,7 +71,7 @@
         invertR = Math.round(Math.random()) == 1
         invertG = Math.round(Math.random()) == 1
         invertB = Math.round(Math.random()) == 1
-    }, 50);
+    }, 500);
 
     var invertR, invertG, invertB = false
 
