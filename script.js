@@ -2,11 +2,22 @@
     const darknessThreshold = 384;
 
     class tardigrade {
-        constructor(x, y, h, w) {
-            this.x = x;
-            this.y = y;
+        constructor(ch, cw, h, w) {
+            this.cHeight = ch;
+            this.cWidth = cw;
             this.h = h;
             this.w = w;
+            this.spawn()
+        }
+        spawn() {
+            var perimeter = Math.floor(Math.random() * ((2.0 * this.cHeight) + this.cWidth))
+            if (perimeter <= this.cHeight) {
+                this.move(0, perimeter)
+            } else if (perimeter <= 2 * this.cHeight) {
+                this.move(this.cWidth - this.w, perimeter - this.cHeight)
+            } else {
+                this.move(perimeter - this.cHeight - this.cHeight - this.w, 0)
+            }
         }
         move(x, y) {
             this.x = x;
@@ -26,6 +37,7 @@
             return (total / this.h / this.w) > darknessThreshold;
         }
         draw(ctx) {
+            tgImage
             ctx.drawImage(tgImage, this.x, this.y, this.w, this.h);
         }
     }
@@ -39,13 +51,15 @@
 
     //enenmies
     var tardigrades = [
-        new tardigrade(0, 0, 50, 50),
+        new tardigrade(canvas.height, canvas.width, 50, 50)
     ];
 
-
-    function getRand(max) {
-        return Math.floor(Math.random() * Math.floor(max));
-    }
+    //add more tardigrades over time
+    setInterval(function () {
+        if (tardigrades.length < 20) {
+            tardigrades.push(new tardigrade(canvas.height, canvas.width, 50, 50));
+        }
+    }, 7500);
 
     //the main draw loop
     setInterval(function () {
@@ -69,14 +83,7 @@
         for (i = 0; i < tardigrades.length; i++) {
             var t = tardigrades[i];
             if (!t.isOnLight(ctx)) {
-                var perimeter = Math.floor(Math.random() * ((2.0 * canvas.height) + canvas.width))
-                if (perimeter <= canvas.height) {
-                    t.move(0, perimeter)
-                } else if (perimeter <= 2 * canvas.height) {
-                    t.move(canvas.width - t.w, perimeter - canvas.height)
-                } else {
-                    t.move(perimeter - canvas.height - canvas.height - t.w, 0)
-                }
+                t.spawn()
             }
             t.draw(ctx);
 
