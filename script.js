@@ -51,7 +51,7 @@
     const bugCtx = bugs.getContext('2d');
 
     const tgImage = document.getElementById('tardigrade')
-    var bgChromaKey
+    var bgChromaKey = null
 
 
     //enenmies
@@ -71,7 +71,7 @@
         invertR = Math.round(Math.random()) == 1
         invertG = Math.round(Math.random()) == 1
         invertB = Math.round(Math.random()) == 1
-    }, 1500);
+    }, 50);
 
     var invertR, invertG, invertB = false
 
@@ -87,11 +87,10 @@
     setInterval(function () {
         // draw video frame on cam
         camCtx.clearRect(0, 0, cam.width, cam.height);
-        bugCtx.clearRect(0, 0, cam.width, cam.height);
+        //bugCtx.clearRect(0, 0, cam.width, cam.height);
         camCtx.drawImage(video, 0, 0, cam.width, cam.height);
 
         var vidFrame = camCtx.getImageData(0, 0, cam.width, cam.height);
-
 
 
         //don't draw game until its started
@@ -113,9 +112,21 @@
                 t.spawn();
             }
         }
+
+
+        var bugFrame = bugCtx.getImageData(0, 0, cam.width, cam.height)
+        var bugData = bugFrame.data
+        //tracers
+        for (var i = 3; i < bugData.length; i += 4) {
+            bugData[i] = bugData[i] / 1.02
+        }
+        bugCtx.putImageData(bugFrame, 0, 0);
+
+
+
+        //crazy colors
         invertColors(vidFrame.data);
         camCtx.putImageData(vidFrame, 0, 0);
-
         // draw tardigrades
         for (i = 0; i < tardigrades.length; i++) {
             var t = tardigrades[i];
