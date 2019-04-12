@@ -2,7 +2,7 @@
     const darknessThreshold = 584;
     const spaceKeyCode = 32;
     let started = false;
-    
+
     class tardigrade {
         constructor(ch, cw, h, w) {
             this.cHeight = ch;
@@ -39,7 +39,6 @@
             return (total / this.h / this.w) > darknessThreshold;
         }
         draw(ctx) {
-            tgImage
             ctx.drawImage(tgImage, this.x, this.y, this.w, this.h);
         }
     }
@@ -116,9 +115,9 @@
     }, false);
 
     // support fullscreen
-    window.onkeypress = function () {
+    window.onkeypress = function (e) {
         if (e.which === spaceKeyCode) {
-            return;
+            started = true;
         }
         flipContainer = document.getElementById("flip_container");
         if (!document.fullscreenElement) {
@@ -130,9 +129,4 @@
         }
     }
 
-    window.onkeydown = function(e) {
-        if (e.which === spaceKeyCode) {
-            started = true;
-        } 
-    }
 })();
