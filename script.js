@@ -1,6 +1,8 @@
 (function () {
-    const darknessThreshold = 384;
-
+    const darknessThreshold = 584;
+    const spaceKeyCode = 32;
+    let started = false;
+    
     class tardigrade {
         constructor(ch, cw, h, w) {
             this.cHeight = ch;
@@ -56,13 +58,16 @@
 
     //add more tardigrades over time
     setInterval(function () {
-        if (tardigrades.length < 20) {
+        if (tardigrades.length < 20 && started) {
             tardigrades.push(new tardigrade(canvas.height, canvas.width, 50, 50));
         }
     }, 7500);
 
     //the main draw loop
     setInterval(function () {
+        if (!started) {
+            return;
+        }
         // draw video frame on canvas
 
         ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -83,7 +88,7 @@
         for (i = 0; i < tardigrades.length; i++) {
             var t = tardigrades[i];
             if (!t.isOnLight(ctx)) {
-                t.spawn()
+                t.spawn();
             }
             t.draw(ctx);
 
@@ -112,7 +117,10 @@
 
     // support fullscreen
     window.onkeypress = function () {
-        flipContainer = document.getElementById("flip_container")
+        if (e.which === spaceKeyCode) {
+            return;
+        }
+        flipContainer = document.getElementById("flip_container");
         if (!document.fullscreenElement) {
             flipContainer.requestFullscreen().catch(err => {
                 alert(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
@@ -120,5 +128,11 @@
         } else {
             document.exitFullscreen();
         }
+    }
+
+    window.onkeydown = function(e) {
+        if (e.which === spaceKeyCode) {
+            started = true;
+        } 
     }
 })();
