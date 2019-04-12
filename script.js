@@ -1,7 +1,7 @@
 (function () {
     const darknessThreshold = 584;
     const spaceKeyCode = 32;
-    let started = false;
+    let started = true;
 
     class tardigrade {
         constructor(ch, cw, h, w) {
@@ -25,8 +25,8 @@
             this.x = x;
             this.y = y;
         }
-        isOnLight(ctx) {
-            var subImg = ctx.getImageData(this.x, this.y, this.w, this.h);
+        isOnLight(camCtx) {
+            var subImg = camCtx.getImageData(this.x, this.y, this.w, this.h);
             var data = subImg.data;
             var total = 0, ix = 0, iy = 0;
 
@@ -38,58 +38,85 @@
             }
             return (total / this.h / this.w) > darknessThreshold;
         }
-        draw(ctx) {
-            ctx.drawImage(tgImage, this.x, this.y, this.w, this.h);
+        draw(bugCtx) {
+            bugCtx.drawImage(tgImage, this.x, this.y, this.w, this.h);
         }
     }
 
     // Put variables in global scope to make them available to the browser console.
     const video = document.querySelector('video');
-    const canvas = document.querySelector('canvas');
-    const ctx = canvas.getContext('2d');
+    const cam = document.getElementById('webcam');
+    const camCtx = cam.getContext('2d');
+    const bugs = document.getElementById('bugs');
+    const bugCtx = bugs.getContext('2d');
+
     const tgImage = document.getElementById('tardigrade')
+    var bgChromaKey
 
 
     //enenmies
     var tardigrades = [
-        new tardigrade(canvas.height, canvas.width, 50, 50)
+        new tardigrade(cam.height, cam.width, 50, 50)
     ];
 
     //add more tardigrades over time
     setInterval(function () {
         if (tardigrades.length < 20 && started) {
-            tardigrades.push(new tardigrade(canvas.height, canvas.width, 50, 50));
+            tardigrades.push(new tardigrade(cam.height, cam.width, 50, 50));
         }
     }, 7500);
 
+
+    var invertR, invertG, invertB = true
+
+    function invertColors(data) {
+        for (var i = 0; i < data.length; i += 4) {
+            data[i] = data[i] ^ 255; // Invert Red
+            data[i + 1] = data[i + 1] ^ 255; // Invert Green
+            data[i + 2] = data[i + 2] ^ 255; // Invert Blue
+        }
+    }
+
     //the main draw loop
     setInterval(function () {
+        // draw video frame on cam
+        camCtx.clearRect(0, 0, cam.width, cam.height);
+        bugCtx.clearRect(0, 0, cam.width, cam.height);
+        camCtx.drawImage(video, 0, 0, cam.width, cam.height);
+
+        var vidFrame = camCtx.getImageData(0, 0, cam.width, cam.height);
+
+
+
+        //don't draw game until its started
         if (!started) {
             return;
         }
-        // draw video frame on canvas
+        // draw player box on cam
+        bugCtx.beginPath();
+        bugCtx.moveTo(cam.width / 2 - 100, cam.height);
+        bugCtx.lineTo(cam.width / 2 - 100, cam.height - 200);
+        bugCtx.lineTo(cam.width / 2 + 100, cam.height - 200);
+        bugCtx.lineTo(cam.width / 2 + 100, cam.height);
+        bugCtx.stroke();
 
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-        // draw player box on canvas
-        ctx.beginPath();
-        ctx.moveTo(canvas.width / 2 - 100, canvas.height);
-        ctx.lineTo(canvas.width / 2 - 100, canvas.height - 200);
-        ctx.lineTo(canvas.width / 2 + 100, canvas.height - 200);
-        ctx.lineTo(canvas.width / 2 + 100, canvas.height);
-        ctx.stroke();
-
-        targetX = canvas.width / 2 - 100
-        targetY = canvas.height - 100
+        // kill tardigrades
+        for (i = 0; i < tardigrades.length; i++) {
+            var t = tardigrades[i];
+            if (!t.isOnLight(camCtx)) {
+                t.spawn();
+            }
+        }
+        invertColors(vidFrame.data);
+        camCtx.putImageData(vidFrame, 0, 0);
 
         // draw tardigrades
         for (i = 0; i < tardigrades.length; i++) {
             var t = tardigrades[i];
-            if (!t.isOnLight(ctx)) {
-                t.spawn();
-            }
-            t.draw(ctx);
+            t.draw(bugCtx);
+
+            targetX = (cam.width - t.w) / 2
+            targetY = (cam.height - 100 - (t.h / 2))
 
             dist = Math.pow(Math.pow(t.x - targetX, 2) + Math.pow(t.y - targetY, 2), .5)
             t.move(t.x - ((t.x - targetX) / dist), t.y - ((t.y - targetY) / dist));
@@ -110,8 +137,11 @@
     navigator.mediaDevices.getUserMedia({ audio: false, video: true }).then(handleSuccess).catch(handleError);
 
     video.addEventListener("loadedmetadata", function (e) {
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
+        cam.width = video.videoWidth;
+        cam.height = video.videoHeight;
+        bugs.width = video.videoWidth;
+        bugs.height = video.videoHeight;
+        bgChromaKey = camCtx.getImageData(0, 0, cam.width, cam.height)
     }, false);
 
     // support fullscreen
