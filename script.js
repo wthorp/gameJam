@@ -66,14 +66,20 @@
         }
     }, 7500);
 
+    //crazy colors
+    setInterval(function () {
+        invertR = Math.round(Math.random()) == 1
+        invertG = Math.round(Math.random()) == 1
+        invertB = Math.round(Math.random()) == 1
+    }, 1500);
 
-    var invertR, invertG, invertB = true
+    var invertR, invertG, invertB = false
 
     function invertColors(data) {
         for (var i = 0; i < data.length; i += 4) {
-            data[i] = data[i] ^ 255; // Invert Red
-            data[i + 1] = data[i + 1] ^ 255; // Invert Green
-            data[i + 2] = data[i + 2] ^ 255; // Invert Blue
+            data[i] = invertR ? data[i] : data[i] ^ 255; // Invert Red
+            data[i + 1] = invertG ? data[i + 1] : data[i + 1] ^ 255; // Invert Green
+            data[i + 2] = invertB ? data[i + 2] : data[i + 2] ^ 255; // Invert Blue
         }
     }
 
