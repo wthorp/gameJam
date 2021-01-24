@@ -18,24 +18,27 @@
             margin: 0px;
         }
 
-        canvas {
+        #webcam,
+        #bugs {
             -o-transform: scaleX(-1);
             -moz-transform: scaleX(-1);
             -webkit-transform: scaleX(-1);
             -ms-transform: scaleX(-1);
             transform: scaleX(-1);
-
         }
     </style>
 </head>
 
 <body>
     <video autoplay="true" id="videoElement" style="visibility:hidden;"></video>
-    <div id="flip_container">
-        <canvas id="webcam"></canvas>
-        <canvas id="bugs"></canvas>
+    <div id="screen">
+        <div id="flip_container">
+            <canvas id="webcam"></canvas>
+            <canvas id="bugs"></canvas>
+        </div>
+        <canvas id="score"></canvas>
     </div>
-    <img src="tardigrade.png" id="tardigrade" style="visibility:hidden;">
+    <img src=" tardigrade.png" id="tardigrade" style="visibility:hidden;">
     <script src="./script.js">
     </script>
 </body>

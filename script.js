@@ -1,7 +1,8 @@
 (function () {
     const darknessThreshold = 584;
     const spaceKeyCode = 32;
-    let started = true;
+    let started = false;
+    let score = 0;
 
     class tardigrade {
         constructor(ch, cw, h, w) {
@@ -49,6 +50,8 @@
     const camCtx = cam.getContext('2d');
     const bugs = document.getElementById('bugs');
     const bugCtx = bugs.getContext('2d');
+    const scoreEl = document.getElementById('score');
+    const scoreCtx = scoreEl.getContext('2d');
 
     const tgImage = document.getElementById('tardigrade')
     var bgChromaKey = null
@@ -71,7 +74,7 @@
         invertR = Math.round(Math.random()) == 1
         invertG = Math.round(Math.random()) == 1
         invertB = Math.round(Math.random()) == 1
-    }, 500);
+    }, 1500);
 
     var invertR, invertG, invertB = false
 
@@ -87,7 +90,8 @@
     setInterval(function () {
         // draw video frame on cam
         camCtx.clearRect(0, 0, cam.width, cam.height);
-        //bugCtx.clearRect(0, 0, cam.width, cam.height);
+        bugCtx.clearRect(0, 0, cam.width, cam.height);
+        scoreCtx.clearRect(0, 0, cam.width, cam.height);
         camCtx.drawImage(video, 0, 0, cam.width, cam.height);
 
         var vidFrame = camCtx.getImageData(0, 0, cam.width, cam.height);
@@ -105,22 +109,29 @@
         bugCtx.lineTo(cam.width / 2 + 100, cam.height);
         bugCtx.stroke();
 
+        // draw score
+        scoreCtx.font = "30px Arial";
+        scoreCtx.fillStyle = "white";
+        scoreCtx.textAlign = "center";
+        scoreCtx.fillText("Score " + score, scoreEl.width / 2, scoreEl.height - 10);
+
         // kill tardigrades
         for (i = 0; i < tardigrades.length; i++) {
             var t = tardigrades[i];
             if (!t.isOnLight(camCtx)) {
                 t.spawn();
+                score++;
             }
         }
 
 
-        var bugFrame = bugCtx.getImageData(0, 0, cam.width, cam.height)
-        var bugData = bugFrame.data
-        //tracers
-        for (var i = 3; i < bugData.length; i += 4) {
-            bugData[i] = bugData[i] / 1.02
-        }
-        bugCtx.putImageData(bugFrame, 0, 0);
+        // var bugFrame = bugCtx.getImageData(0, 0, cam.width, cam.height)
+        // var bugData = bugFrame.data
+        // //tracers
+        // for (var i = 3; i < bugData.length; i += 4) {
+        //     bugData[i] = bugData[i] / 2
+        // }
+        // bugCtx.putImageData(bugFrame, 0, 0);
 
 
 
@@ -158,6 +169,8 @@
         cam.height = video.videoHeight;
         bugs.width = video.videoWidth;
         bugs.height = video.videoHeight;
+        scoreEl.width = video.videoWidth;
+        scoreEl.height = video.videoHeight;
         bgChromaKey = camCtx.getImageData(0, 0, cam.width, cam.height)
     }, false);
 
@@ -165,8 +178,9 @@
     window.onkeypress = function (e) {
         if (e.which === spaceKeyCode) {
             started = true;
+            score = 0;
         }
-        flipContainer = document.getElementById("flip_container");
+        flipContainer = document.getElementById("screen");
         if (!document.fullscreenElement) {
             flipContainer.requestFullscreen().catch(err => {
                 alert(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
